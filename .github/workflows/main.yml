@@ -1,6 +1,7 @@
-name: Cloud PC Fixed
+name: RDP
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -8,30 +9,25 @@ jobs:
 
     steps:
 
-    - name: Enable RDP
-      run: |
-        net user runneradmin Pass123! /add
-        net localgroup administrators runneradmin /add
-        reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
-        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+      - name: Enable RDP
+        run: |
+          net user runner Pass123! /add
+          net localgroup administrators runner /add
+          reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-    - name: Install Tailscale
-      run: |
-        choco install tailscale -y
+      - name: Install Tailscale
+        run: |
+          choco install tailscale -y
 
-    - name: Login Tailscale
-      run: |
-        & "C:\Program Files\Tailscale\tailscale.exe" up --authkey tskey-auth-kLeYKLhXuS11CNTRL-2rN4YKdTmchBdCiNityXchSocgRRLmLuW --accept-dns=false --reset
+      - name: Login Tailscale
+        run: |
+          & "C:\Program Files\Tailscale\tailscale.exe" up --authkey tskey-auth-kLeYKLhXuS11CNTRL-2rN4YKdTmchBdCiNityXchSocgRRLmLuW --accept-dns=false --reset
 
-    - name: Show IP
-      run: |
-        & "C:\Program Files\Tailscale\tailscale.exe" ip -4
+      - name: Show IP
+        run: |
+          & "C:\Program Files\Tailscale\tailscale.exe" ip -4
 
-    - name: Disable Sleep
-      run: |
-        powercfg -change -standby-timeout-ac 0
-        powercfg -change -monitor-timeout-ac 0
-
-    - name: Keep Alive
-      run: |
-        ping localhost -t
+      - name: Keep Alive
+        run: |
+          ping localhost -t
