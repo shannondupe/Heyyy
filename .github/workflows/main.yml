@@ -1,4 +1,4 @@
-name: Cloud PC LowBlock
+name: Cloud PC Fixed
 
 on: workflow_dispatch
 
@@ -21,11 +21,11 @@ jobs:
 
     - name: Login Tailscale
       run: |
-        "C:\Program Files\Tailscale\tailscale.exe" up --authkey tskey-auth-kLeYKLhXuS11CNTRL-2rN4YKdTmchBdCiNityXchSocgRRLmLuW --accept-dns=false --reset
+        & "C:\Program Files\Tailscale\tailscale.exe" up --authkey tskey-auth-kLeYKLhXuS11CNTRL-2rN4YKdTmchBdCiNityXchSocgRRLmLuW --accept-dns=false --reset
 
-    - name: Show Tailscale IP
+    - name: Show IP
       run: |
-        "C:\Program Files\Tailscale\tailscale.exe" ip -4
+        & "C:\Program Files\Tailscale\tailscale.exe" ip -4
 
     - name: Disable Sleep
       run: |
