@@ -1,4 +1,4 @@
-name: ULTIMATE RDP OPENGL DX TAILSCALE
+name: ULTIMATE RDP OPENGL DX TAILSCALE v2
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ jobs:
 
     steps:
 
-    - name: Create admin user
+    - name: Create user
       run: |
         net user gamer Passw0rd! /add
         net localgroup administrators gamer /add
@@ -20,25 +20,26 @@ jobs:
         reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-    - name: Enable DirectX WARP
+    - name: Enable WARP DirectX
       run: |
         reg add HKLM\SOFTWARE\Microsoft\Direct3D /v UseWARP /t REG_DWORD /d 1 /f
 
-    - name: Install dependencies
-      run: |
-        choco install vcredist-all -y
-        choco install dotnetfx -y
-        choco install directx -y
-        choco install mesa -y
+    - name: Install VC++
+      run: choco install vcredist-all -y || exit 0
 
-    - name: Force software OpenGL
+    - name: Install DirectX
+      run: choco install directx -y || exit 0
+
+    - name: Install Mesa OpenGL
+      run: choco install mesa -y || exit 0
+
+    - name: Force software renderer
       run: |
         setx PANDA3D_FORCE_SOFTWARE 1
         setx LIBGL_ALWAYS_SOFTWARE 1
 
     - name: Install Tailscale
-      run: |
-        choco install tailscale -y
+      run: choco install tailscale -y
 
     - name: Start Tailscale
       run: |
@@ -49,6 +50,6 @@ jobs:
         powercfg -change -standby-timeout-ac 0
         powercfg -change -monitor-timeout-ac 0
 
-    - name: Keep runner alive
+    - name: Keep alive
       run: |
         while ($true) { Start-Sleep 60 }
