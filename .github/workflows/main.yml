@@ -1,33 +1,54 @@
-name: RDP
+name: ULTIMATE RDP OPENGL DX TAILSCALE
 
 on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: windows-latest
+  rdp:
+    runs-on: windows-2022
+    timeout-minutes: 360
 
     steps:
 
-      - name: Enable RDP
-        run: |
-          net user runner Pass123! /add
-          net localgroup administrators runner /add
-          reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
-          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+    - name: Create admin user
+      run: |
+        net user gamer Passw0rd! /add
+        net localgroup administrators gamer /add
 
-      - name: Install Tailscale
-        run: |
-          choco install tailscale -y
+    - name: Enable RDP
+      run: |
+        reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-      - name: Login Tailscale
-        run: |
-          & "C:\Program Files\Tailscale\tailscale.exe" up --authkey tskey-auth-kLeYKLhXuS11CNTRL-2rN4YKdTmchBdCiNityXchSocgRRLmLuW --accept-dns=false --reset
+    - name: Enable DirectX WARP
+      run: |
+        reg add HKLM\SOFTWARE\Microsoft\Direct3D /v UseWARP /t REG_DWORD /d 1 /f
 
-      - name: Show IP
-        run: |
-          & "C:\Program Files\Tailscale\tailscale.exe" ip -4
+    - name: Install dependencies
+      run: |
+        choco install vcredist-all -y
+        choco install dotnetfx -y
+        choco install directx -y
+        choco install mesa -y
 
-      - name: Keep Alive
-        run: |
-          ping localhost -t
+    - name: Force software OpenGL
+      run: |
+        setx PANDA3D_FORCE_SOFTWARE 1
+        setx LIBGL_ALWAYS_SOFTWARE 1
+
+    - name: Install Tailscale
+      run: |
+        choco install tailscale -y
+
+    - name: Start Tailscale
+      run: |
+        & "C:\Program Files\Tailscale\tailscale.exe" up --authkey tskey-auth-ktMWauDQ3C11CNTRL-ptdTQ92Xh8Z9dpKLggXh7ZoaLVsy8Ui8V --hostname githubrdp
+
+    - name: Disable sleep
+      run: |
+        powercfg -change -standby-timeout-ac 0
+        powercfg -change -monitor-timeout-ac 0
+
+    - name: Keep runner alive
+      run: |
+        while ($true) { Start-Sleep 60 }
