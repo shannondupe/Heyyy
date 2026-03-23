@@ -1,4 +1,4 @@
-name: PANDA SAFE WORKFLOW
+name: PANDA3D MAX COMPAT
 
 on:
   workflow_dispatch:
@@ -17,21 +17,26 @@ jobs:
 
     - name: Enable RDP
       run: |
-        reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+        reg add "HKLM\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-    - name: Enable WARP (software GPU)
+    - name: Enable WARP GPU
       run: |
         reg add HKLM\SOFTWARE\Microsoft\Direct3D /v UseWARP /t REG_DWORD /d 1 /f
+
+    - name: Force DX9 + software rendering
+      run: |
+        setx PANDA3D_FORCE_SOFTWARE 1
+        setx PYOPENGL_PLATFORM win32
+        setx ANGLE_DEFAULT_PLATFORM d3d9
 
     - name: Install VC++
       run: |
         choco install vcredist-all -y
 
-    - name: Force Panda3D software mode
+    - name: Install DirectX runtime
       run: |
-        setx PANDA3D_FORCE_SOFTWARE 1
-        setx PYOPENGL_PLATFORM win32
+        choco install directx -y
 
     - name: Install Tailscale
       run: |
