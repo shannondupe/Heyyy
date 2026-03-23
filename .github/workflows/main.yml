@@ -1,4 +1,4 @@
-name: ULTIMATE RDP OPENGL DX TAILSCALE v2
+name: BEST TOONTOWN WORKFLOW
 
 on:
   workflow_dispatch:
@@ -20,26 +20,30 @@ jobs:
         reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-    - name: Enable WARP DirectX
+    - name: Enable DirectX WARP
       run: |
         reg add HKLM\SOFTWARE\Microsoft\Direct3D /v UseWARP /t REG_DWORD /d 1 /f
 
     - name: Install VC++
-      run: choco install vcredist-all -y || exit 0
+      run: |
+        choco install vcredist-all -y
 
-    - name: Install DirectX
-      run: choco install directx -y || exit 0
+    - name: Download Mesa manually
+      run: |
+        mkdir C:\mesa
+        cd C:\mesa
+        curl -L -o mesa.zip https://github.com/pal1000/mesa-dist-win/releases/latest/download/mesa3d-23.1.9-release-msvc.7z
+        tar -xf mesa.zip
+        setx LIBGL_ALWAYS_SOFTWARE 1
+        setx MESA_GL_VERSION_OVERRIDE 3.3
 
-    - name: Install Mesa OpenGL
-      run: choco install mesa -y || exit 0
-
-    - name: Force software renderer
+    - name: Force Panda3D software
       run: |
         setx PANDA3D_FORCE_SOFTWARE 1
-        setx LIBGL_ALWAYS_SOFTWARE 1
 
     - name: Install Tailscale
-      run: choco install tailscale -y
+      run: |
+        choco install tailscale -y
 
     - name: Start Tailscale
       run: |
