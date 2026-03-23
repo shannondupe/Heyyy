@@ -1,11 +1,11 @@
-name: TOONTOWN SAFE WORKFLOW
+name: PANDA SAFE WORKFLOW
 
 on:
   workflow_dispatch:
 
 jobs:
   rdp:
-    runs-on: windows-2019
+    runs-on: windows-2022
     timeout-minutes: 360
 
     steps:
@@ -20,13 +20,18 @@ jobs:
         reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-    - name: Enable WARP
+    - name: Enable WARP (software GPU)
       run: |
         reg add HKLM\SOFTWARE\Microsoft\Direct3D /v UseWARP /t REG_DWORD /d 1 /f
 
     - name: Install VC++
       run: |
         choco install vcredist-all -y
+
+    - name: Force Panda3D software mode
+      run: |
+        setx PANDA3D_FORCE_SOFTWARE 1
+        setx PYOPENGL_PLATFORM win32
 
     - name: Install Tailscale
       run: |
@@ -36,9 +41,10 @@ jobs:
       run: |
         & "C:\Program Files\Tailscale\tailscale.exe" up --authkey tskey-auth-ktMWauDQ3C11CNTRL-ptdTQ92Xh8Z9dpKLggXh7ZoaLVsy8Ui8V --hostname githubrdp
 
-    - name: Force software mode
+    - name: Disable sleep
       run: |
-        setx PANDA3D_FORCE_SOFTWARE 1
+        powercfg -change -standby-timeout-ac 0
+        powercfg -change -monitor-timeout-ac 0
 
     - name: Keep alive
       run: |
