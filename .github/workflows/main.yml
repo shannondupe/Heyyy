@@ -1,11 +1,11 @@
-name: BEST TOONTOWN WORKFLOW
+name: TOONTOWN SAFE WORKFLOW
 
 on:
   workflow_dispatch:
 
 jobs:
   rdp:
-    runs-on: windows-2022
+    runs-on: windows-2019
     timeout-minutes: 360
 
     steps:
@@ -20,26 +20,13 @@ jobs:
         reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-    - name: Enable DirectX WARP
+    - name: Enable WARP
       run: |
         reg add HKLM\SOFTWARE\Microsoft\Direct3D /v UseWARP /t REG_DWORD /d 1 /f
 
     - name: Install VC++
       run: |
         choco install vcredist-all -y
-
-    - name: Download Mesa manually
-      run: |
-        mkdir C:\mesa
-        cd C:\mesa
-        curl -L -o mesa.zip https://github.com/pal1000/mesa-dist-win/releases/latest/download/mesa3d-23.1.9-release-msvc.7z
-        tar -xf mesa.zip
-        setx LIBGL_ALWAYS_SOFTWARE 1
-        setx MESA_GL_VERSION_OVERRIDE 3.3
-
-    - name: Force Panda3D software
-      run: |
-        setx PANDA3D_FORCE_SOFTWARE 1
 
     - name: Install Tailscale
       run: |
@@ -49,10 +36,9 @@ jobs:
       run: |
         & "C:\Program Files\Tailscale\tailscale.exe" up --authkey tskey-auth-ktMWauDQ3C11CNTRL-ptdTQ92Xh8Z9dpKLggXh7ZoaLVsy8Ui8V --hostname githubrdp
 
-    - name: Disable sleep
+    - name: Force software mode
       run: |
-        powercfg -change -standby-timeout-ac 0
-        powercfg -change -monitor-timeout-ac 0
+        setx PANDA3D_FORCE_SOFTWARE 1
 
     - name: Keep alive
       run: |
